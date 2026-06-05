@@ -1,3 +1,4 @@
+```
 # UAB-DeepLabV3+: Lumbar Scoliosis Pathological Detection and Multi-Dimensional Quantification
 This repository contains full implementation for lumbar MRI semantic segmentation, automatic scoliosis angle measurement, segmentation metrics calculation and result statistical analysis.
 
@@ -11,10 +12,9 @@ This repository contains full implementation for lumbar MRI semantic segmentatio
 Python: 3.8 | PyTorch: 2.4.1 | CUDA:12.1
 ```bash
 pip install -r requirements.txt
+```
 
- 
-## 3. Project Strucure     
-**
+## 3. Project Structure
 ```
 ├── VOCdevkit/                 # VOC标注数据集目录
 ├── img/                       # Original input MRI images
@@ -38,33 +38,27 @@ pip install -r requirements.txt
 ├── json_to_dataset.py         # JSON annotation to dataset
 ├── voc_annotation.py          # VOC format annotation
 ├── requirements.txt            # Dependencies
-
 ```
-**
+
 ## 4. Usage
-
-## Dataset Preparation
-
+### Dataset Preparation
 ```
 python json_to_dataset.py
 python voc_annotation.py
 ```
 
 ### Model Training
-
 ```
 python train_phase1.py
 python train_ablation.py
 ```
 
 ### Segmentation Prediction
-
 ```
 python predict.py
 ```
 
 ### Evaluation Metrics
-
 ```
 python get_mDice.py
 python get_miou.py
@@ -73,7 +67,6 @@ python single_mIou.py
 ```
 
 ### Angle Calculation
-
 ```
 python cobb8.py
 python every_amace_angle.py
@@ -81,9 +74,8 @@ python every_amace_cobb_analysis.py
 ```
 
 ### Visualization & Analysis
-
 ```
 python CSF_plot.py
 python three_method_analysis_tardition_amace_hough_contour.py
 ```
-
+```
