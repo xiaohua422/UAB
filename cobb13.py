@@ -11,9 +11,9 @@ plt.rcParams['font.family'] = ['Times New Roman', 'SimHei']
 plt.rcParams['axes.unicode_minus'] = False
 
 # -------------------------- 配置参数 --------------------------
-ORIGINAL_IMG_DIR = r"D:\unet_test\Deeplabv3+\deeplabv3-plus-pytorch-main-05_compute\img"
-MASK_DIR = r"D:\unet_test\Deeplabv3+\deeplabv3-plus-pytorch-main-05_compute\mask"
-OUTPUT_PARENT_DIR = r"D:\unet_test\Deeplabv3+\Deeplabv3_plus_ours\deeplabv3-plus-pytorch-main-ours\cobb13_amace_cobb_results"
+ORIGINAL_IMG_DIR = "img\"
+MASK_DIR = "mask\"
+OUTPUT_PARENT_DIR = "cobb13_amace_cobb_results"
 os.makedirs(OUTPUT_PARENT_DIR, exist_ok=True)
 
 VERTEBRA_LABELS = {
