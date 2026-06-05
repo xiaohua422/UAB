@@ -30,7 +30,7 @@ plt.rcParams['axes.unicode_minus'] = False
 # Set plot style
 sns.set_style("whitegrid")
 # Save directory
-save_dir = r"D:\unet_test\Deeplabv3+\Deeplabv3_plus_ours\deeplabv3-plus-pytorch-main-ours\CSF\csf_amace_angle_analysis_02"
+save_dir = "CSF\csf_amace_angle_analysis"
 
 # Create save directory and subdirectories
 os.makedirs(save_dir, exist_ok=True)
