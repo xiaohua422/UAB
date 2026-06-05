@@ -13,8 +13,8 @@ import pandas as pd  # 用于数据处理和保存结果到CSV
 
 # ------------ 用户配置 ------------
 # 定义输入图像和mask的目录
-IMG_DIR = r"D:\unet_test\Deeplabv3+\deeplabv3-plus-pytorch-main-08\img"
-MASK_DIR = r"D:\unet_test\Deeplabv3+\deeplabv3-plus-pytorch-main-08\mask"
+IMG_DIR ="img/"
+MASK_DIR = "mask/"
 
 # 定义输出目录
 OUT_DIR = os.path.join('.', 'cobb10_amace_cobb_results')
@@ -1232,6 +1232,6 @@ def batch_extract_spline_curve(img_dir, mask_dir):
 
 if __name__ == "__main__":
     # 单张提取：替换为你的图像和mask路径
-    IMG_PATH = r"D:\unet_test\Deeplabv3+\deeplabv3-plus-pytorch-main-08\img\22.jpg"
-    MASK_PATH = r"D:\unet_test\Deeplabv3+\deeplabv3-plus-pytorch-main-08\mask\22.png"
+    IMG_PATH = "img/xx.jpg"
+    MASK_PATH = "mask\xx.png"
     extract_cubic_spline_curve(IMG_PATH, MASK_PATH)
