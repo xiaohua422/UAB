@@ -1,4 +1,4 @@
-# 终板线求cobb角（L1-L5版本）——基于轮廓拟合直线，带汇总表格输出
+# 终板线求cobb角（L1-L5版本）——基于轮廓拟合直线
 import os
 import numpy as np
 import cv2
