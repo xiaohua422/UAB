@@ -1,14 +1,26 @@
-UAB-DeepLabV3+:Lumbar Scoliosis Pathological Detection and Multi-Dimensional Quantification
+# UAB-DeepLabV3+: Lumbar Scoliosis Pathological Detection and Multi-Dimensional Quantification
+This repository contains full implementation for lumbar MRI semantic segmentation, automatic scoliosis angle measurement, segmentation metrics calculation and result statistical analysis.
 
-### 所需环境
+## 1. Core Functions
+1. MRI spinal tissue segmentation based on improved UAB-DeepLabV3+
+2. Automatic spinal curvature measurement
+3. Batch calculation of segmentation metrics (mDice, mIoU, DHI etc.)
+4. CSF visualization, error statistics and multi-model comparative analysis
 
-torch==1.2.0
+## 2. Environment Installation
+Python: 3.8 | PyTorch: 2.4.1 | CUDA:12.1
+```bash
+pip install -r requirements.txt
 
  
 
 # Project Strucure     
 
 ```
+├── VOCdevkit/                 # VOC标注数据集目录
+├── img/                       # Original input MRI images
+├── nets/                      # Backbone & network auxiliary files
+├── phase_img_out/             # Model segmentation output images
 ├── deeplab.py                 # UAB-DeepLabV3+ model structure
 ├── train_phase1.py            # Main training script
 ├── train_ablation.py          # Ablation study training
@@ -23,11 +35,11 @@ torch==1.2.0
 ├── get_miou.py                # IoU metric
 ├── CSF_plot.py                # CSF feature visualization
 ├── csf_signal_visualizer.py
-├── three_method_analysis_tardition_amace_hough_contour.py
+├── three_method_analysis_tardition_amace_hough_contour.py       # Result error & comparison analysis
 ├── json_to_dataset.py         # JSON annotation to dataset
 ├── voc_annotation.py          # VOC format annotation
 ├── requirements.txt            # Dependencies
-└── README.md
+
 ```
 
 # Usage
