@@ -11,11 +11,11 @@ plt.rcParams['axes.unicode_minus'] = False
 
 # -------------------------- 配置参数 --------------------------
 # 输入路径（改为目录路径）
-ORIGINAL_IMG_DIR = r"D:\unet_test\Deeplabv3+\deeplabv3-plus-pytorch-main-08\img"
-MASK_DIR = r"D:\unet_test\Deeplabv3+\deeplabv3-plus-pytorch-main-08\mask"
+ORIGINAL_IMG_DIR = "img/"
+MASK_DIR = "mask/"
 
 # 输出父目录
-OUTPUT_PARENT_DIR = r"D:\unet_test\Deeplabv3+\deeplabv3-plus-pytorch-main-08\cobb8_amace_cobb_results"
+OUTPUT_PARENT_DIR = "cobb8_amace_cobb_results"
 os.makedirs(OUTPUT_PARENT_DIR, exist_ok=True)
 
 # 椎体标签与名称映射
