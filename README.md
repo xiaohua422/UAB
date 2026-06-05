@@ -78,4 +78,3 @@ python every_amace_cobb_analysis.py
 python CSF_plot.py
 python three_method_analysis_tardition_amace_hough_contour.py
 ```
-```
