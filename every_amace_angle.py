@@ -11,7 +11,6 @@ from skimage import measure
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# ------------ 用户配置 -----------
 IMG_DIR = "img"
 MASK_DIR = "mask"
 OUT_DIR = os.path.join('.', 'every_amace_cobb_results')
@@ -45,9 +44,6 @@ plt.rcParams['lines.linewidth'] = 1.0
 plt.rcParams['axes.linewidth'] = 0.8
 plt.rcParams['font.size'] = 10
 
-# ------------------------------------------------------
-# 工具函数
-# ------------------------------------------------------
 def read_image(path):
     img = cv2.imread(path)
     if img is None:
@@ -314,7 +310,7 @@ def line_segment_within_bbox(pt_rel, v, w, h, eps=1e-6):
         p1 = (max(0, min(w, p1[0])), max(0, min(h, p1[1])))
         p2 = (max(0, min(w, p2[0])), max(0, min(h, p2[1])))
         return p1, p2
-# ------------------------------------------------------
+
 def visualize_vertebrae_angles(img_rgb, mask_idx, names_all, centers_all, axes_all, cs_x, cs_y,
                                s_vals, k, speed, main_bend_regions, peaks_info,
                                metrics, intervertebral_angles, out_path):
@@ -399,7 +395,7 @@ def visualize_vertebrae_angles(img_rgb, mask_idx, names_all, centers_all, axes_a
             ax_img.plot([endplate_start[0], endplate_end[0]], [endplate_start[1], endplate_end[1]],
                         color='green', linewidth=1.0, alpha=0.7)
 
-    # 绘制弯曲区域和峰值点（原有逻辑不变）
+
     for i, region in enumerate(main_bend_regions):
         if i >= len(BEND_REGION_COLORS):
             break
@@ -419,7 +415,6 @@ def visualize_vertebrae_angles(img_rgb, mask_idx, names_all, centers_all, axes_a
                        color=BEND_REGION_COLORS[i], edgecolors='white', linewidth=1.5,
                        zorder=10, marker='*')
 
-    # 绘制L1/L5端板线（原有逻辑不变）
     if 'L1' in names_all and 'L5' in names_all:
         idx_top = names_all.index('L1')
         idx_bot = names_all.index('L5')
@@ -446,7 +441,7 @@ def visualize_vertebrae_angles(img_rgb, mask_idx, names_all, centers_all, axes_a
    
     if intervertebral_angles and 'angles' in intervertebral_angles:
         angles_dict = intervertebral_angles['angles']
-        segments_order = ["L1-L2", "L2-L3", "L3-L4", "L4-L5"]  # 固定顺序
+        segments_order = ["L1-L2", "L2-L3", "L3-L4", "L4-L5"]  
         for seg in segments_order:
             if seg in angles_dict:
                 info_text_parts.append(f"{seg}: {angles_dict[seg]:.1f}°")
@@ -457,9 +452,9 @@ def visualize_vertebrae_angles(img_rgb, mask_idx, names_all, centers_all, axes_a
         info_text_parts.append(f"Max Bend: {max_segment} = {max_angle:.1f}°")
     if main_bend_regions:
         info_text_parts.append(f"Bend Regions: {len(main_bend_regions)}")
-    # 拼接所有标注，换行显示
+   
     info_text = "\n".join(info_text_parts) if info_text_parts else ""
-    # 绘制标注（样式与原有完全一致，黑底半透明+白字）
+    
     if info_text:
         ax_img.text(0.02, 0.99, info_text,
                     transform=ax_img.transAxes, fontsize=10, weight='bold',
@@ -563,11 +558,11 @@ def visualize_spine_curve(img_rgb, mask_idx, names_all, centers_all, axes_all, c
     try:
         plt.savefig(pdf_path, dpi=SAVE_DPI, bbox_inches='tight', pad_inches=0.01, format='pdf')
     except Exception as e:
-        print(f"[WARN] 保存spine PDF失败: {pdf_path}, 错误: {str(e)[:50]}")
+        print(f"[WARN] save spine PDF failure: {pdf_path}, error: {str(e)[:50]}")
     try:
         plt.savefig(out_path, dpi=SAVE_DPI, bbox_inches='tight', pad_inches=0.01)
     except Exception as e:
-        print(f"[WARN] 保存spine PNG失败: {out_path}, 错误: {str(e)[:50]}")
+        print(f"[WARN] save spine PNG failure: {out_path}, error: {str(e)[:50]}")
     plt.close(fig)
     return pdf_path
 
@@ -686,7 +681,6 @@ def improved_process_pair(img_path, mask_path):
                "spine_curve_image_pdf": spine_pdf_path,
            }, None
 
-# ---------------- 批量处理 ----------------
 def improved_batch_process(img_dir, mask_dir, out_dir):
     os.makedirs(out_dir, exist_ok=True)
     vis_dir = os.path.join(out_dir)
@@ -771,6 +765,5 @@ def generate_statistical_report(df, out_dir):
         f.write(f"\nProcessing Success Rate: {successful}/{len(df)} ({success_rate:.1f}%)\n")
     print(f"Statistical report saved to: {report_path}")
 
-# ---------------- 主程序入口（原有逻辑完全不变，直接保留） ----------------
 if __name__ == "__main__":
     improved_batch_process(IMG_DIR, MASK_DIR, OUT_DIR)
