@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 plt.rcParams['font.family'] = 'Times New Roman'
 plt.rcParams['font.size'] = 10  
 
-# 忽略所有警告（避免输出干扰）
+
 warnings.filterwarnings('ignore')
 
 try:
@@ -23,16 +23,13 @@ except ImportError:
 try:
     from statsmodels.stats.multicomp import pairwise_tukeyhsd
     from statsmodels.stats.inter_rater import fleiss_kappa
-# 导入失败则设为None
+
 except ImportError:
     pairwise_tukeyhsd = None
     fleiss_kappa = None
 
 
 def create_safe_directory(base_path, dir_name):
-    """
-    创建安全的输出目录，避免路径相关问题
-    """
     safe_dir = os.path.join(base_path, dir_name)
     try:
         os.makedirs(safe_dir, exist_ok=True)
@@ -48,9 +45,6 @@ def create_safe_directory(base_path, dir_name):
 
 
 def check_data_quality(df):
-    """
-    数据质量检查函数：检查缺失值、异常值、数据分布正态性
-    """
     print("\n" + "=" * 60)
     print("Data Quality Check")
     print("=" * 60)
@@ -169,10 +163,6 @@ def perform_advanced_statistical_tests(df):
 
 
 def calculate_error_metrics(df):
-    """
-    计算详细的误差指标（以手工测量为金标准）：
-    MAE、RMSE、偏差、LoA、MAPE、临床可接受性
-    """
     print("\n" + "=" * 60)
     print("Detailed Error Analysis")
     print("=" * 60)
@@ -216,9 +206,6 @@ def calculate_error_metrics(df):
 
 
 def perform_regression_analysis(df):
-    """
-    执行回归分析：分析自动测量方法与手工测量的线性关系
-    """
     print("\n" + "=" * 60)
     print("Regression Analysis")
     print("=" * 60)
@@ -253,14 +240,6 @@ def perform_regression_analysis(df):
 
 
 def create_advanced_visualizations(df, output_dir):
-    """
-    创建高级可视化图表的主函数：
-    1. 分布对比图（箱线图+小提琴图）—— 包含五个方法
-    2. 相关性散点图 —— 包含四个自动方法
-    3. 差值分布密度图 —— 包含四个自动方法
-    4. 临床性能雷达图（仅对比AMACE和Traditional）
-    并调用其他可视化子函数（Bland-Altman、趋势分析等）
-    """
     print("\nGenerating advanced visualization charts...")
 
     comp_dir = create_safe_directory(output_dir, "comprehensive_comparison")
@@ -272,7 +251,7 @@ def create_advanced_visualizations(df, output_dir):
     all_labels = ['AMACE', 'Traditional', 'Hough', 'Contour', 'Manual']
     colors_all = ['#1f77b4', '#d62728', '#2ca02c', '#9467bd', '#ff7f0e']
 
-    # 1. 分布对比图
+ 
     print("\nCreating distribution comparison plot (all five methods)...")
     fig1, ax1 = plt.subplots(figsize=(12, 8))
     data_to_plot = [df[col] for col in all_methods]
@@ -294,7 +273,7 @@ def create_advanced_visualizations(df, output_dir):
     plt.close(fig1)
     print(f"Distribution comparison plot saved: {plot_path}")
 
-    # 2. 相关性散点图
+   
     print("\nCreating correlation scatter plot (all automatic methods)...")
     fig2, ax2 = plt.subplots(figsize=(12, 8))
     auto_methods = [('AMACE', 'amace_angle'), ('Traditional', 'tradition_angle'),
@@ -328,7 +307,7 @@ def create_advanced_visualizations(df, output_dir):
     plt.close(fig2)
     print(f"Correlation scatter plot saved: {plot_path}")
 
-    # 3. 差值分布密度图
+   
     print("\nCreating difference distribution density plot (all automatic methods)...")
     fig3, ax3 = plt.subplots(figsize=(12, 8))
     from scipy.stats import gaussian_kde
@@ -357,7 +336,7 @@ def create_advanced_visualizations(df, output_dir):
     plt.close(fig3)
     print(f"Difference distribution density plot saved: {plot_path}")
 
-    # 4. 临床性能雷达图（包含四种方法）- 清晰配色
+    
     print("\nCreating clinical performance radar chart (all four methods with clear colors)...")
     fig4, ax4 = plt.subplots(figsize=(10, 8), subplot_kw=dict(projection='polar'))
     categories = ['MAE ≤ 5°', 'MAE ≤ 10°', 'Bias ≤ 5°', 'R² ≥ 0.9', 'ICC ≥ 0.9']
@@ -370,23 +349,23 @@ def create_advanced_visualizations(df, output_dir):
         mae_10_score = max(0, 1 - mae / 10) if mae <= 10 else 0
         bias_score = max(0, 1 - abs(bias) / 5) if abs(bias) <= 5 else 0
         r2_score = min(1, r_squared / 0.9)
-        icc_score = 0.8  # 示例值，可从ICC分析获取一个总体值或保留为0.8
+        icc_score = 0.8  
         return [mae_5_score, mae_10_score, bias_score, r2_score, icc_score]
 
-    # 定义四种方法及其饱和色
+   
     radar_methods = [
-        ('AMACE', df['amace_angle'], '#0055ff'),  # 亮蓝色
-        ('Traditional', df['tradition_angle'], '#ff0000'),  # 亮红色
-        ('Hough', df['hough_angle'], '#00cc00'),  # 亮绿色
-        ('Contour', df['contour_angle'], '#9467bd')  # 亮紫色
+        ('AMACE', df['amace_angle'], '#0055ff'), 
+        ('Traditional', df['tradition_angle'], '#ff0000'),
+        ('Hough', df['hough_angle'], '#00cc00'),  
+        ('Contour', df['contour_angle'], '#9467bd')
     ]
 
     angles = np.linspace(0, 2 * np.pi, len(categories), endpoint=False).tolist()
-    angles += angles[:1]  # 闭合角度
+    angles += angles[:1]  
 
     for name, data, color in radar_methods:
         scores = calculate_metrics(data, df['manual_angle'])
-        scores += scores[:1]  # 闭合评分
+        scores += scores[:1]  
         ax4.plot(angles, scores, 'o-', linewidth=2, label=name, color=color, alpha=0.9)
         ax4.fill(angles, scores, alpha=0.5, color=color)
 
@@ -406,7 +385,7 @@ def create_advanced_visualizations(df, output_dir):
     plt.close(fig4)
     print(f"Clinical performance radar chart (four methods) saved: {plot_path}")
 
-    # 调用其他可视化子函数
+
     create_advanced_bland_altman_all(df, output_dir)
     create_combined_bland_altman_four(df, output_dir)
     # create_side_by_side_bland_altman(df, output_dir)
@@ -415,7 +394,7 @@ def create_advanced_visualizations(df, output_dir):
 
 
 def create_advanced_bland_altman_all(df, output_dir):
-    """为所有四个自动方法创建单独的Bland-Altman图"""
+
     print("\nCreating advanced Bland-Altman plots for all methods...")
     ba_dir = create_safe_directory(output_dir, "bland_altman_plots")
     auto_methods = [('AMACE', 'amace_angle'), ('Traditional', 'tradition_angle'),
@@ -473,7 +452,7 @@ def create_advanced_bland_altman_all(df, output_dir):
 
 
 def create_combined_bland_altman_four(df, output_dir):
-    """创建合并四个自动方法的Bland-Altman图"""
+   
     print("\nCreating combined Bland-Altman plot (four methods)...")
     combined_dir = create_safe_directory(output_dir, "combined_plots")
     fig, ax = plt.subplots(figsize=(14, 10))
@@ -528,44 +507,38 @@ def create_combined_bland_altman_four(df, output_dir):
 
 
 def create_side_by_side_bland_altman_four(df, output_dir):
-    """
-    为四种方法分别生成独立的 Bland-Altman 图
-    参数：
-        df: 包含角度测量数据的DataFrame
-        output_dir: 输出目录路径
-    """
+
     print("\nCreating individual Bland-Altman plots for each method...")
     combined_dir = create_safe_directory(output_dir, "combined_plots")
 
-    # 定义配色方案（与原有风格一致）
     colors = {
         'AMACE': {
-            'primary': '#2E86AB',  # 柔和的蓝色
+            'primary': '#2E86AB',  
             'light': '#A3D5FF',
             'dark': '#1A5F7A',
             'accent': '#73B1E0'
         },
         'Traditional': {
-            'primary': '#E15554',  # 柔和的红色
+            'primary': '#E15554',  
             'light': '#FFB8B7',
             'dark': '#A63D40',
             'accent': '#E68A8A'
         },
         'Hough': {
-            'primary': '#2ca02c',  # 绿色
+            'primary': '#2ca02c', 
             'light': '#98df8a',
             'dark': '#1f771f',
             'accent': '#4caf50'
         },
         'Contour': {
-            'primary': '#9467bd',  # 紫色
+            'primary': '#9467bd', 
             'light': '#c5b0d5',
             'dark': '#5a3e8a',
             'accent': '#b085f5'
         }
     }
 
-    # 为每种方法分配不同的colormap
+   
     cmaps = {
         'AMACE': 'viridis',
         'Traditional': 'plasma',
@@ -573,43 +546,40 @@ def create_side_by_side_bland_altman_four(df, output_dir):
         'Contour': 'hot'
     }
 
-    # 临床区域配色
+   
     zone_colors = {
-        'acceptable': '#90EE90',  # 浅绿色
-        'tolerable': '#FFE5B4'  # 浅橙色
+        'acceptable': '#90EE90',  
+        'tolerable': '#FFE5B4'  
     }
 
     auto_methods = [('AMACE', 'amace_angle'), ('Traditional', 'tradition_angle'),
                     ('Hough', 'hough_angle'), ('Contour', 'contour_angle')]
 
     for method_name, method_col in auto_methods:
-        # 为每个方法创建独立的图形
+        
         fig = plt.figure(figsize=(10, 8))
         ax = fig.add_subplot(111)
 
         method_data = df[method_col]
 
-        # 计算差值和均值
         differences = method_data - df['manual_angle']
         means = (method_data + df['manual_angle']) / 2
 
-        # 计算Bland-Altman指标
         bias = np.mean(differences)
         std_diff = np.std(differences)
         loa_upper = bias + 1.96 * std_diff
         loa_lower = bias - 1.96 * std_diff
 
-        # 计算在LoA范围内的样本比例
         within_loa = np.sum((differences >= loa_lower) & (differences <= loa_upper))
         within_loa_percent = (within_loa / len(df)) * 100
 
-        # 绘制临床区域（放在底层）
+       
         ax.axhspan(-5, 5, alpha=0.15, color=zone_colors['acceptable'],
                    label='Clinically acceptable (±5°)', zorder=0)
         ax.axhspan(-10, 10, alpha=0.08, color=zone_colors['tolerable'],
                    label='Clinically tolerable (±10°)', zorder=0)
 
-        # 散点图（根据均值着色）
+      ）
         norm = plt.Normalize(means.min(), means.max())
         scatter = ax.scatter(
             means,
@@ -624,11 +594,11 @@ def create_side_by_side_bland_altman_four(df, output_dir):
             norm=norm
         )
 
-        # 添加颜色条
+      
         cbar = plt.colorbar(scatter, ax=ax, shrink=0.8, pad=0.02)
         cbar.set_label('Mean Angle (°)', fontsize=10)
 
-        # 添加趋势线
+      
         z = np.polyfit(means, differences, 1)
         trend_line = np.poly1d(z)
         x_range = np.linspace(means.min(), means.max(), 100)
@@ -643,7 +613,7 @@ def create_side_by_side_bland_altman_four(df, output_dir):
             label=f'Trend (slope={z[0]:.3f})'
         )
 
-        # 添加偏差线
+     
         ax.axhline(
             y=bias,
             color=colors[method_name]['primary'],
@@ -654,7 +624,6 @@ def create_side_by_side_bland_altman_four(df, output_dir):
             label=f'Bias: {bias:.2f}°'
         )
 
-        # 添加LoA线
         ax.axhline(
             y=loa_upper,
             color=colors[method_name]['accent'],
@@ -674,18 +643,16 @@ def create_side_by_side_bland_altman_four(df, output_dir):
             label=f'95% LoA lower: {loa_lower:.2f}°'
         )
 
-        # 添加零差值线
         ax.axhline(y=0, color='black', linestyle='-', linewidth=1, alpha=0.5, zorder=2)
 
-        # 坐标轴标签
         ax.set_xlabel('Mean of Methods and Manual Measurement (°)', fontsize=11)
         ax.set_ylabel(f'Difference from Manual Measurement (°)', fontsize=11)
 
-        # 图形标题（包含LoA内样本比例）
+   
         ax.set_title(f'{method_name} Bland-Altman Plot\n({within_loa_percent:.1f}% within LoA)',
                      fontsize=13, fontweight='bold')
 
-        # 调整坐标轴范围
+
         y_min, y_max = differences.min(), differences.max()
         max_abs_y = max(abs(y_min), abs(y_max))
         y_padding = max_abs_y * 0.5
@@ -695,13 +662,11 @@ def create_side_by_side_bland_altman_four(df, output_dir):
         x_padding = (x_max - x_min) * 0.1
         ax.set_xlim(x_min - x_padding, x_max + x_padding)
 
-        # 显示网格
+
         ax.grid(True, alpha=0.25, zorder=1, linestyle='--')
 
-        # 显示图例
         ax.legend(loc='upper right', fontsize=10, framealpha=0.9)
 
-        # 添加统计信息文本框
         stats_text = (
             f"Bias: {bias:.2f}°\n"
             f"LoA: [{loa_lower:.2f}°, {loa_upper:.2f}°]\n"
@@ -720,7 +685,7 @@ def create_side_by_side_bland_altman_four(df, output_dir):
         print(f"Individual Bland-Altman plot for {method_name} saved: {plot_path}")
 
 def create_trend_analysis_all(df, output_dir):
-    """创建包含所有自动方法的趋势分析图"""
+   
     print("\nCreating trend analysis plots (all methods)...")
     trend_dir = create_safe_directory(output_dir, "trend_analysis_plots")
     sorted_df = df.sort_values('manual_angle')
@@ -728,7 +693,7 @@ def create_trend_analysis_all(df, output_dir):
                     ('Hough', 'hough_angle'), ('Contour', 'contour_angle')]
     colors = ['blue', 'red', 'green', 'purple']
 
-    # 1. 角度值趋势图
+    
     fig1, ax1 = plt.subplots(figsize=(12, 8))
     x_range = range(len(sorted_df))
     for (name, col), color in zip(auto_methods, colors):
@@ -746,7 +711,7 @@ def create_trend_analysis_all(df, output_dir):
     plt.close(fig1)
     print(f"Angle trend plot saved: {plot_path}")
 
-    # 2. 误差趋势图（5点移动平均）
+ 
     fig2, ax2 = plt.subplots(figsize=(12, 8))
     window_size = 5
     for (name, col), color in zip(auto_methods, colors):
@@ -765,7 +730,7 @@ def create_trend_analysis_all(df, output_dir):
     plt.close(fig2)
     print(f"Error trend plot saved: {plot_path}")
 
-    # 3. 按角度范围的误差分布图
+  
     fig3, ax3 = plt.subplots(figsize=(12, 8))
     bins = [0, 20, 40, 60, 80, 100]
     bin_labels = ['0-20°', '20-40°', '40-60°', '60-80°', '80-100°']
@@ -799,9 +764,6 @@ def create_trend_analysis_all(df, output_dir):
 
 
 def generate_comprehensive_report(df, output_dir, error_metrics, friedman_p):
-    """
-    生成综合分析报告（文本文件）
-    """
     report_path = os.path.join(output_dir, 'comprehensive_analysis_report.txt')
     with open(report_path, 'w', encoding='utf-8') as f:
         f.write("Cobb Angle Measurement Methods Comprehensive Analysis Report\n")
@@ -873,9 +835,6 @@ def generate_comprehensive_report(df, output_dir, error_metrics, friedman_p):
 
 
 def main():
-    """
-    主函数：整个分析流程的入口
-    """
     input_excel_path = r"D:\unet_test\Deeplabv3+\cobb对比图像\L1-L5\相差较大的图像\手工测量对比三种.xlsx"
     base_dir = r"D:\unet_test\Deeplabv3+\cobb对比图像\L1-L5\相差较大的图像"
     output_dir = create_safe_directory(base_dir, "three_method_analysis_tardition_amace_hough_contour")
