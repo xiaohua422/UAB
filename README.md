@@ -1,4 +1,4 @@
-```
+
 # UAB-DeepLabV3+: Lumbar Scoliosis Pathological Detection and Multi-Dimensional Quantification
 This repository contains full implementation for lumbar MRI semantic segmentation, automatic scoliosis angle measurement, segmentation metrics calculation and result statistical analysis.
 
