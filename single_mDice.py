@@ -3,24 +3,23 @@ import numpy as np
 from PIL import Image
 from tqdm import tqdm
 
-# from deeplab import DeeplabV3
 from deeplab import DeeplabV3
 from utils.utils_metrics import compute_mIoU, show_results
 
 
 def compute_group_metrics(hist, group_indices, name_classes, metric_type='iou'):
     """
-    计算指定类别组的平均指标（IoU 或 Dice）
+    Calculate average metrics (IoU or Dice) for a specified class group
 
-    参数:
-        hist: 混淆矩阵
-        group_indices: 类别索引列表（不包含背景0）
-        name_classes: 类别名称
-        metric_type: 'iou' 或 'dice'
+    Parameters:
+        hist: confusion matrix
+        group_indices: list of class indices (excluding background 0)
+        name_classes: class names
+        metric_type: 'iou' or 'dice'
 
-    返回:
-        group_mean: 组内平均值
-        group_values: 每个类别的指标值列表
+    Return:
+        group_mean: mean value of the group
+        group_values: list of individual values
     """
     group_values = []
     for idx in group_indices:
@@ -32,7 +31,7 @@ def compute_group_metrics(hist, group_indices, name_classes, metric_type='iou'):
         if metric_type == 'iou':
             union = tp + fp + fn
             value = tp / (union + 1e-8)
-        else:  # dice
+        else:
             value = 2 * tp / (2 * tp + fp + fn + 1e-8)
         group_values.append(value)
     group_mean = np.mean(group_values) if group_values else 0
@@ -41,32 +40,22 @@ def compute_group_metrics(hist, group_indices, name_classes, metric_type='iou'):
 
 if __name__ == "__main__":
     # ---------------------------------------------------------------------------#
-    #   miou_mode用于指定该文件运行时计算的内容
-    #   miou_mode为0代表整个miou计算流程，包括获得预测结果、计算miou。
-    #   miou_mode为1代表仅仅获得预测结果。
-    #   miou_mode为2代表仅仅计算miou（同时计算Dice指标）。
+    # miou_mode: 0 = full pipeline (predict + compute metrics)
+    #            1 = predict only
+    #            2 = compute metrics only (IoU + Dice)
     # ---------------------------------------------------------------------------#
     miou_mode = 0
-    # ------------------------------#
-    #   分类个数+1、如2+1
-    # ------------------------------#
+
     num_classes = 13
-    # --------------------------------------------#
-    #   区分的种类，和json_to_dataset里面的一样
-    # --------------------------------------------#
+
     name_classes = ["_background_", "L1", "L2", "L3", "L4", "L5",
                     "L1/L2", "L2/L3", "L3/L4", "L4/L5", "L5/S1", "S1", "CSF"]
 
-    # 定义分组类别索引（背景索引0不会被包含在分组计算中）
-    vertebral_indices = [1, 2, 3, 4, 5, 11]   # 椎体
-    disc_indices = [6, 7, 8, 9, 10]           # 椎间盘
-    lumbar_indices = list(set(vertebral_indices + disc_indices))  # 腰椎全部
-    csf_indices = [12]                        # CSF
+    vertebral_indices = [1, 2, 3, 4, 5, 11]
+    disc_indices = [6, 7, 8, 9, 10]
+    lumbar_indices = list(set(vertebral_indices + disc_indices))
+    csf_indices = [12]
 
-    # -------------------------------------------------------#
-    #   指向VOC数据集所在的文件夹
-    #   默认指向根目录下的VOC数据集
-    # -------------------------------------------------------#
     VOCdevkit_path = 'VOCdevkit'
 
     image_ids = open(os.path.join(VOCdevkit_path, "VOC2007/ImageSets/Segmentation/val.txt"), 'r').read().splitlines()
@@ -79,7 +68,6 @@ if __name__ == "__main__":
             os.makedirs(pred_dir)
 
         print("Load model.")
-        # attention_unet = AttU_NetPredict()
         deeplabv3 = DeeplabV3()
         print("Load model done.")
 
@@ -93,17 +81,13 @@ if __name__ == "__main__":
 
     if miou_mode == 0 or miou_mode == 2:
         print("Get miou.")
-        # 计算混淆矩阵和各类指标（包含背景）
         hist, IoUs, PA_Recall, Precision = compute_mIoU(gt_dir, pred_dir, image_ids, num_classes, name_classes)
         print("Get miou done.")
 
-        # 1. 显示包含背景的 mIoU 结果（原函数输出，包含图表、CSV等）
         show_results(miou_out_path, hist, IoUs, PA_Recall, Precision, name_classes)
 
-        # ================= 基于混淆矩阵计算所有指标 =================
-        # 计算每个类别的 IoU、Recall、Precision、Dice
         all_ious = []
-        all_recalls = []   # 即 PA (Pixel Accuracy)
+        all_recalls = []
         all_precisions = []
         all_dices = []
 
@@ -113,7 +97,7 @@ if __name__ == "__main__":
             fp = np.sum(hist[:, c]) - tp
             union = tp + fn + fp
             iou = tp / (union + 1e-8)
-            recall = tp / (tp + fn + 1e-8)      # PA = TP/(TP+FN)
+            recall = tp / (tp + fn + 1e-8)
             precision = tp / (tp + fp + 1e-8)
             dice = 2 * tp / (2 * tp + fp + fn + 1e-8)
 
@@ -122,19 +106,16 @@ if __name__ == "__main__":
             all_precisions.append(precision)
             all_dices.append(dice)
 
-        # 包含背景的整体指标
         miou_with_bg = np.mean(all_ious)
         mpa_with_bg = np.mean(all_recalls)
         mean_precision_with_bg = np.mean(all_precisions)
         mdice_with_bg = np.mean(all_dices)
 
-        # 排除背景的整体指标（索引1开始）
         miou_without_bg = np.mean(all_ious[1:])
         mpa_without_bg = np.mean(all_recalls[1:])
         mean_precision_without_bg = np.mean(all_precisions[1:])
         mdice_without_bg = np.mean(all_dices[1:])
 
-        # 打印整体结果
         print("\n" + "=" * 60)
         print("Overall Results (including background):")
         print("  mIoU: {:.4f}".format(miou_with_bg))
@@ -149,22 +130,18 @@ if __name__ == "__main__":
         print("  mDice: {:.4f}".format(mdice_without_bg))
         print("=" * 60)
 
-        # 打印每个类别的详细指标（包含背景）
         print("\nPer-class metrics (including background):")
         print("{:<12} {:>8} {:>8} {:>10} {:>8}".format("Class", "IoU", "PA", "Precision", "Dice"))
         for c, name in enumerate(name_classes):
             print("{:<12} {:>8.4f} {:>8.4f} {:>10.4f} {:>8.4f}".format(
                 name, all_ious[c], all_recalls[c], all_precisions[c], all_dices[c]))
 
-        # 打印每个类别的详细指标（排除背景）
         print("\nPer-class metrics (excluding background):")
         print("{:<12} {:>8} {:>8} {:>10} {:>8}".format("Class", "IoU", "PA", "Precision", "Dice"))
         for c in range(1, num_classes):
             print("{:<12} {:>8.4f} {:>8.4f} {:>10.4f} {:>8.4f}".format(
                 name_classes[c], all_ious[c], all_recalls[c], all_precisions[c], all_dices[c]))
 
-        # ================= 分组指标计算（排除背景） =================
-        # 分组 IoU
         print("\n--- Group IoU (excluding background) ---")
         vertebral_mIoU, vertebral_IoUs = compute_group_metrics(hist, vertebral_indices, name_classes, 'iou')
         print("Vertebral mIoU: {:.4f}".format(vertebral_mIoU))
@@ -187,7 +164,6 @@ if __name__ == "__main__":
         print("\nCSF mIoU: {:.4f}".format(csf_mIoU))
         print("  {}: {:.4f}".format(name_classes[csf_indices[0]], csf_IoUs[0]))
 
-        # 分组 Dice
         print("\n--- Group Dice (excluding background) ---")
         vertebral_mDice, vertebral_Dices = compute_group_metrics(hist, vertebral_indices, name_classes, 'dice')
         print("Vertebral mDice: {:.4f}".format(vertebral_mDice))
@@ -210,7 +186,6 @@ if __name__ == "__main__":
         print("\nCSF mDice: {:.4f}".format(csf_mDice))
         print("  {}: {:.4f}".format(name_classes[csf_indices[0]], csf_Dices[0]))
 
-        # ================= 保存所有结果到文本文件 =================
         result_file = os.path.join(miou_out_path, "miou_dice_results.txt")
         with open(result_file, "w") as f:
             f.write("=== Overall Results ===\n\n")
@@ -268,4 +243,4 @@ if __name__ == "__main__":
             f.write("\nCSF mDice: {:.4f}\n".format(csf_mDice))
             f.write("  {}: {:.4f}\n".format(name_classes[csf_indices[0]], csf_Dices[0]))
 
-        print("\nAll detailed results (including mIoU, PA, Precision, mDice, and group metrics) have been saved to: {}".format(result_file))
+        print("\nAll detailed results have been saved to: {}".format(result_file))
