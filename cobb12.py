@@ -1,4 +1,4 @@
-# 终板线求cobb角（L1-L5版本）——基于边缘检测 + 霍夫变换，带汇总表格输出
+# 终板线求cobb角（L1-L5版本）——基于边缘检测 + 霍夫变换
 import os
 import numpy as np
 import cv2
