@@ -1,41 +1,25 @@
-# 导入操作系统相关功能库，用于文件/目录操作
 import os
-# 导入pandas库，用于数据处理和分析（核心数据结构DataFrame）
 import pandas as pd
-# 导入numpy库，用于数值计算（数组、矩阵、数学函数等）
 import numpy as np
-# 导入matplotlib的pyplot模块，用于绘制基础图表
 import matplotlib.pyplot as plt
-# 导入seaborn库，用于绘制更美观的统计图表
 import seaborn as sns
-# 从scipy导入统计模块，用于基础统计分析
 from scipy import stats
-# 从scipy.stats导入特定的统计函数：
-# linregress：线性回归分析
-# friedmanchisquare：弗里德曼检验（非参数重复测量方差分析）
-# shapiro：Shapiro-Wilk正态性检验
-# normaltest：正态性检验
 from scipy.stats import linregress, friedmanchisquare, shapiro, normaltest
-# 导入警告处理库，用于忽略无关警告
 import warnings
 import matplotlib.pyplot as plt
-# 设置全局字体为 Times New Roman
+
 plt.rcParams['font.family'] = 'Times New Roman'
-plt.rcParams['font.size'] = 10   # 可选，调整默认字号
+plt.rcParams['font.size'] = 10  
 
 # 忽略所有警告（避免输出干扰）
 warnings.filterwarnings('ignore')
 
-# 尝试导入pingouin库（高级统计分析库，主要用于ICC计算）
 try:
     import pingouin as pg
-# 如果导入失败（未安装），将pg设为None
+
 except ImportError:
     pg = None
 
-# 尝试导入statsmodels中的特定统计函数：
-# pairwise_tukeyhsd：Tukey HSD事后检验
-# fleiss_kappa：Fleiss卡帕系数（评分者一致性）
 try:
     from statsmodels.stats.multicomp import pairwise_tukeyhsd
     from statsmodels.stats.inter_rater import fleiss_kappa
@@ -103,12 +87,6 @@ def check_data_quality(df):
 
 
 def perform_advanced_statistical_tests(df):
-    """
-    执行高级统计检验：
-    1. Friedman检验（所有方法的整体差异）
-    2. 配对Wilcoxon检验（各自动方法与manual）
-    3. ICC组内相关系数（所有方法的一致性）
-    """
     print("\n" + "=" * 60)
     print("Advanced Statistical Tests")
     print("=" * 60)
