@@ -1,4 +1,3 @@
-# 导入必要的库（原有代码不变，此处省略，直接接修改后的可视化函数）
 import os
 import math
 from glob import glob
@@ -12,7 +11,7 @@ from skimage import measure
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# ------------ 用户配置 ------------（原有配置不变，直接保留）
+# ------------ 用户配置 -----------
 IMG_DIR = "img"
 MASK_DIR = "mask"
 OUT_DIR = os.path.join('.', 'every_amace_cobb_results')
@@ -47,7 +46,7 @@ plt.rcParams['axes.linewidth'] = 0.8
 plt.rcParams['font.size'] = 10
 
 # ------------------------------------------------------
-# 工具函数（原有工具函数完全不变，直接保留）
+# 工具函数
 # ------------------------------------------------------
 def read_image(path):
     img = cv2.imread(path)
@@ -315,12 +314,6 @@ def line_segment_within_bbox(pt_rel, v, w, h, eps=1e-6):
         p1 = (max(0, min(w, p1[0])), max(0, min(h, p1[1])))
         p2 = (max(0, min(w, p2[0])), max(0, min(h, p2[1])))
         return p1, p2
-
-# ------------------------------------------------------
-# 【修改1/2】可视化函数：vertebrae_angles - 左侧单独显示椎骨间角度
-# ------------------------------------------------------
-# ------------------------------------------------------
-# 【修改后】可视化函数：vertebrae_angles - 椎骨间角度移到Angle与Max Bend之间
 # ------------------------------------------------------
 def visualize_vertebrae_angles(img_rgb, mask_idx, names_all, centers_all, axes_all, cs_x, cs_y,
                                s_vals, k, speed, main_bend_regions, peaks_info,
@@ -446,19 +439,18 @@ def visualize_vertebrae_angles(img_rgb, mask_idx, names_all, centers_all, axes_a
             ax_img.plot([bot_seg_p1[0], bot_seg_p2[0]], [bot_seg_p1[1], bot_seg_p2[1]],
                         color='orange', linewidth=1.8, label='L5 Endplate (extended)')
 
-    # ------------------- 核心重构：左上角标注（Angle → 椎骨间角度 → Max Bend → 弯曲区域） -------------------
     info_text_parts = []
-    # 1. 第一行：Cobb Angle（原Angle）
+ 
     if 'endplate_angle_deg' in metrics:
         info_text_parts.append(f"Cobb Angle: {metrics['endplate_angle_deg']:.1f}°")
-    # 2. 中间行：椎骨间角度（插入Angle和Max Bend之间，按L1-L2→L4-L5顺序）
+   
     if intervertebral_angles and 'angles' in intervertebral_angles:
         angles_dict = intervertebral_angles['angles']
         segments_order = ["L1-L2", "L2-L3", "L3-L4", "L4-L5"]  # 固定顺序
         for seg in segments_order:
             if seg in angles_dict:
                 info_text_parts.append(f"{seg}: {angles_dict[seg]:.1f}°")
-    # 3. 后续行：Max Bend + 弯曲区域（原有逻辑）
+
     if intervertebral_angles and 'max_segment' in intervertebral_angles and intervertebral_angles['max_segment']:
         max_segment = intervertebral_angles['max_segment']
         max_angle = intervertebral_angles['max_angle']
@@ -476,14 +468,13 @@ def visualize_vertebrae_angles(img_rgb, mask_idx, names_all, centers_all, axes_a
     # ------------------------------------------------------------------------------------------------------
 
     ax_img.axis('off')
-    # 【修复图例警告】仅当有标签时才显示图例
     handles, labels = ax_img.get_legend_handles_labels()
     if handles:
         ax_img.legend(handles=handles, labels=labels, loc='upper right', fontsize=9)
 
     plt.tight_layout()
     pdf_path = os.path.splitext(out_path)[0] + '.pdf'
-    # 【加异常处理】避免单文件保存失败中断批量处理
+
     try:
         plt.savefig(pdf_path, dpi=SAVE_DPI, bbox_inches='tight', pad_inches=0.01, format='pdf')
     except Exception as e:
@@ -495,12 +486,6 @@ def visualize_vertebrae_angles(img_rgb, mask_idx, names_all, centers_all, axes_a
     plt.close(fig)
     return pdf_path
 
-# ------------------------------------------------------
-# 【修改2/2】可视化函数：spine_curve - 移除Adjacent Angles标题
-# ------------------------------------------------------
-# ------------------------------------------------------
-# 【修改后】可视化函数：spine_curve - 彻底移除Adjacent Angles所有文字标注
-# ------------------------------------------------------
 def visualize_spine_curve(img_rgb, mask_idx, names_all, centers_all, axes_all, cs_x, cs_y,
                           s_vals, k, speed, main_bend_regions, peaks_info,
                           metrics, intervertebral_angles, out_path):
@@ -559,7 +544,7 @@ def visualize_spine_curve(img_rgb, mask_idx, names_all, centers_all, axes_all, c
     ax_curve.set_xlabel('X (pixels)', fontsize=10)
     ax_curve.set_ylabel('Y (pixels, inverted)', fontsize=10)
     ax_curve.grid(True, linestyle='--', alpha=0.5)
-    # 【修复图例警告】仅当有标签时才显示图例
+
     handles, labels = ax_curve.get_legend_handles_labels()
     if handles:
         ax_curve.legend(handles=handles, labels=labels, fontsize=9, loc='upper right')
@@ -572,13 +557,9 @@ def visualize_spine_curve(img_rgb, mask_idx, names_all, centers_all, axes_all, c
     cbar = fig.colorbar(sc_curve, ax=ax_curve, fraction=0.046, pad=0.04)
     cbar.set_label('Curvature (normalized)', fontsize=10)
 
-    # ------------------- 核心修改：彻底删除所有Adjacent Angles相关文字标注 -------------------
-    # 【已完全删除】原所有椎骨间角度的文字拼接、绘制代码，无任何残留
-    # --------------------------------------------------------------------------------------
-
     plt.tight_layout()
     pdf_path = os.path.splitext(out_path)[0] + '.pdf'
-    # 【加异常处理】避免单文件保存失败中断批量处理
+
     try:
         plt.savefig(pdf_path, dpi=SAVE_DPI, bbox_inches='tight', pad_inches=0.01, format='pdf')
     except Exception as e:
@@ -590,7 +571,6 @@ def visualize_spine_curve(img_rgb, mask_idx, names_all, centers_all, axes_all, c
     plt.close(fig)
     return pdf_path
 
-# ---------------- 改进的处理流程（原有逻辑完全不变，直接保留） ----------------
 def improved_process_pair(img_path, mask_path):
     img = read_image(img_path)
     mask_idx = read_mask_index(mask_path)
@@ -706,7 +686,7 @@ def improved_process_pair(img_path, mask_path):
                "spine_curve_image_pdf": spine_pdf_path,
            }, None
 
-# ---------------- 批量处理（原有逻辑完全不变，直接保留） ----------------
+# ---------------- 批量处理 ----------------
 def improved_batch_process(img_dir, mask_dir, out_dir):
     os.makedirs(out_dir, exist_ok=True)
     vis_dir = os.path.join(out_dir)
