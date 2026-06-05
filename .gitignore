@@ -1,0 +1,51 @@
+# 模型权重
+*.pth
+*.h5
+*.ckpt
+*.pb
+
+# 训练日志和输出目录
+logs_phase1/
+logs_ablation/
+miou_out/
+model_data/
+phase_img_out/
+phase_mask/
+output3_CSF/
+output4_CSF/
+
+# Cobb 角测量结果（这些是运行脚本生成的，不需要版本控制）
+cobb8_amace_cobb_results/
+cobb10_amace_cobb_results/
+cobb12_amace_cobb_results/
+cobb13_amace_cobb_results/
+every_amace_cobb_results/
+three_method_analysis_tardition_amace_hough_contour/
+
+# 图片数据（测试图片、中间图片）
+img/
+mask/
+CSF/
+phase_mask/
+*.jpg
+*.png
+*.bmp
+
+# 数据集
+Vocdevkit/
+datasets/
+*.tfrecord
+
+# Python 缓存
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.idea/
+.vscode/
+
+# 其他临时/输出文件
+analysis_results.png
+label_check.png
+*.docx
+*.tmp
+.DS_Store
