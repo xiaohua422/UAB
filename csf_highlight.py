@@ -6,9 +6,9 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 # 路径设置
-img_dir = r"D:\unet_test\Deeplabv3+\deeplabv3-plus-pytorch-main-08\img"
-mask_dir = r"D:\unet_test\Deeplabv3+\deeplabv3-plus-pytorch-main-08\mask"
-save_dir = r"D:\unet_test\Deeplabv3+\deeplabv3-plus-pytorch-main-08\output4_CSF"
+img_dir = "img"
+mask_dir = "mask"
+save_dir = "output4_CSF"
 
 os.makedirs(save_dir, exist_ok=True)
 
