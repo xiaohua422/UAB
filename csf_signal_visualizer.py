@@ -7,7 +7,7 @@ from tqdm import tqdm
 import matplotlib.cm as cm
 
 # ----------------- 参数配置（仅改这里） -----------------
-img_dir = r"D:\unet_test\Deeplabv3+\deeplabv3-plus-pytorch-main-08\output4_CSF"
+img_dir = "output4_CSF"
 csv_file = os.path.join(img_dir, "CSF_highlight_statistics.csv")
 zoom_scale = 2.5
 max_offset_ratio = 0.18
