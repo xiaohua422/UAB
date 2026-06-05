@@ -311,8 +311,8 @@ class SpineAnalysisReviewer:
         print("\n✅ All figures exported as SVG only!")
 
 def main():
-    input_path = r"D:\unet_test\Deeplabv3+\Deeplabv3_plus_ours\deeplabv3-plus-pytorch-main-ours\every_amace_cobb_results\statistical_report.txt"
-    output_dir = r"D:\unet_test\Deeplabv3+\Deeplabv3_plus_ours\deeplabv3-plus-pytorch-main-ours\every_amace_cobb_results\every_amace_cobb_analysis"
+    input_path = "every_amace_cobb_results\statistical_report.txt"
+    output_dir = "every_amace_cobb_results\every_amace_cobb_analysis"
     analyzer = SpineAnalysisReviewer(input_path, output_dir)
     analyzer.run_full_analysis()
 
