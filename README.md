@@ -14,7 +14,7 @@ pip install -r requirements.txt
 
  
 
-# Project Strucure     
+## 3. Project Strucure     
 
 ```
 ├── VOCdevkit/                 # VOC标注数据集目录
@@ -42,7 +42,7 @@ pip install -r requirements.txt
 
 ```
 
-# Usage
+## 4. Usage
 
 ## Dataset Preparation
 
@@ -51,20 +51,20 @@ python json_to_dataset.py
 python voc_annotation.py
 ```
 
-## Model Training
+### Model Training
 
 ```
 python train_phase1.py
 python train_ablation.py
 ```
 
-## Segmentation Prediction
+### Segmentation Prediction
 
 ```
 python predict.py
 ```
 
-## Evaluation Metrics
+### Evaluation Metrics
 
 ```
 python get_mDice.py
@@ -73,7 +73,7 @@ python single_mDice.py
 python single_mIou.py
 ```
 
-## Angle Calculation
+### Angle Calculation
 
 ```
 python cobb8.py
@@ -81,7 +81,7 @@ python every_amace_angle.py
 python every_amace_cobb_analysis.py
 ```
 
-## Visualization & Analysis
+### Visualization & Analysis
 
 ```
 python CSF_plot.py
