@@ -1,4 +1,3 @@
-#终板线求cobb角L1-L5，借助垂线
 import os
 import numpy as np
 import cv2
