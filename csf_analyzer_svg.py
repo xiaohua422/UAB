@@ -1,10 +1,3 @@
-"""
-CSF Region Analysis and Statistics System
-Author: DeepSeek Assistant
-Version: 2.3
-Function: Automatic CSF region detection, multiple statistical features calculation, visualization reports
-"""
-
 import os
 import cv2
 import numpy as np
@@ -152,7 +145,7 @@ class CSFAnalyzer:
             'supported_image_exts': ['.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif'],
             'report_figsize': (15, 12),
             'curve_figsize': (10, 6),
-            'output_format': 'svg'  # 新增：输出图像格式，支持矢量图 svg/pdf 等
+            'output_format': 'svg' 
         }
 
         if config:
@@ -793,7 +786,6 @@ class CSFAnalyzer:
     def save_results(self):
         """Save analysis results"""
 
-        # Save as CSV - 所有文件的CSF分析结果单独保存为CSV
         csv_path = self.save_dir / "CSF_statistics_detailed.csv"
         df = self.results_to_dataframe()
         df.to_csv(csv_path, index=False, encoding='utf-8-sig')
@@ -974,7 +966,7 @@ def main():
             'heatmap_colormap': 'jet',
             'report_figsize': (15, 12),
             'curve_figsize': (10, 6),
-            'output_format': 'svg'  # 新增：输出格式，svg 或 pdf
+            'output_format': 'svg' 
         }
     }
 
