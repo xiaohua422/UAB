@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # ------------ 用户配置 ------------（原有配置不变，直接保留）
-IMG_DIR = r"D:\unet_test\Deeplabv3+\Deeplabv3_plus_ours\deeplabv3-plus-pytorch-main-ours\img"
-MASK_DIR = r"D:\unet_test\Deeplabv3+\Deeplabv3_plus_ours\deeplabv3-plus-pytorch-main-ours\mask"
+IMG_DIR = "img"
+MASK_DIR = "mask"
 OUT_DIR = os.path.join('.', 'every_amace_cobb_results')
 VIS_DIR = os.path.join(OUT_DIR)
 os.makedirs(VIS_DIR, exist_ok=True)
