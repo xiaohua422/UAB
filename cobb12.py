@@ -11,8 +11,8 @@ plt.rcParams['font.family'] = ['Times New Roman', 'SimHei']
 plt.rcParams['axes.unicode_minus'] = False
 
 # -------------------------- 配置参数 --------------------------
-ORIGINAL_IMG_DIR = "img\"
-MASK_DIR = "mask\"
+ORIGINAL_IMG_DIR = "img/"
+MASK_DIR = "mask/"
 OUTPUT_PARENT_DIR = "cobb12_amace_cobb_results"
 os.makedirs(OUTPUT_PARENT_DIR, exist_ok=True)
 
