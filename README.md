@@ -13,9 +13,8 @@ Python: 3.8 | PyTorch: 2.4.1 | CUDA:12.1
 pip install -r requirements.txt
 
  
-
 ## 3. Project Strucure     
-
+**
 ```
 ├── VOCdevkit/                 # VOC标注数据集目录
 ├── img/                       # Original input MRI images
@@ -41,7 +40,7 @@ pip install -r requirements.txt
 ├── requirements.txt            # Dependencies
 
 ```
-
+**
 ## 4. Usage
 
 ## Dataset Preparation
