@@ -8,22 +8,20 @@ import PIL.Image
 from labelme import utils
 
 '''
-制作自己的语义分割数据集需要注意以下几点：
-1、我使用的labelme版本是3.16.7，建议使用该版本的labelme，有些版本的labelme会发生错误，
-   具体错误为：Too many dimensions: 3 > 2
-   安装方式为命令行pip install labelme==3.16.7
-2、此处生成的标签图是8位彩色图，与视频中看起来的数据集格式不太一样。
-   虽然看起来是彩图，但事实上只有8位，此时每个像素点的值就是这个像素点所属的种类。
-   所以其实和视频中VOC数据集的格式一样。因此这样制作出来的数据集是可以正常使用的。也是正常的。
+Notes for custom semantic segmentation dataset:
+1. Recommended labelme version: 3.16.7
+   Install: pip install labelme==3.16.7
+2. Generated label PNG is 8-bit index image.
+   Each pixel value represents its class ID, same as VOC format.
 '''
+
 if __name__ == '__main__':
     jpgs_path   = "datasets/JPEGImages"
     pngs_path   = "datasets/SegmentationClass"
-    classes     = ["_background_", "L1", "L2", "L3", "L4", "L5", "L1/L2", "L2/L3", "L3/L4", "L4/L5", "L5/S1", "S1",
-                    "CSF"]
-    # classes     = ["_background_","cat","dog"]
-    
-    count = os.listdir("./datasets/before/") 
+    classes     = ["_background_", "L1", "L2", "L3", "L4", "L5",
+                   "L1/L2", "L2/L3", "L3/L4", "L4/L5", "L5/S1", "S1", "CSF"]
+
+    count = os.listdir("./datasets/before/")
     for i in range(0, len(count)):
         path = os.path.join("./datasets/before", count[i])
 
@@ -57,14 +55,13 @@ if __name__ == '__main__':
             
             lbl = utils.shapes_to_label(img.shape, data['shapes'], label_name_to_value)
             
-                
-            PIL.Image.fromarray(img).save(osp.join(jpgs_path, count[i].split(".")[0]+'.jpg'))
+            PIL.Image.fromarray(img).save(osp.join(jpgs_path, count[i].split(".")[0] + '.jpg'))
 
-            new = np.zeros([np.shape(img)[0],np.shape(img)[1]])
+            new = np.zeros([img.shape[0], img.shape[1]])
             for name in label_names:
                 index_json = label_names.index(name)
                 index_all = classes.index(name)
-                new = new + index_all*(np.array(lbl) == index_json)
+                new[np.array(lbl) == index_json] = index_all
 
-            utils.lblsave(osp.join(pngs_path, count[i].split(".")[0]+'.png'), new)
+            utils.lblsave(osp.join(pngs_path, count[i].split(".")[0] + '.png'), new)
             print('Saved ' + count[i].split(".")[0] + '.jpg and ' + count[i].split(".")[0] + '.png')
