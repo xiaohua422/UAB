@@ -1,20 +1,20 @@
 '''
-# 训练完整模型
+# Train full model
 python train_ablation.py --config_name full_model --gpu_id 0
 
-# 训练无注意力
+# Train without attention
 python train_ablation.py --config_name no_attention --gpu_id 0
 
-# 训练仅通道注意力
+# Train with only channel attention
 python train_ablation.py --config_name channel_only --gpu_id 0
 
-# 训练仅空间注意力
+# Train with only spatial attention
 python train_ablation.py --config_name spatial_only --gpu_id 0
 
-# 训练无 shortcut conv
+# Train without shortcut conv
 python train_ablation.py --config_name no_shortcut --gpu_id 0
 
-# 训练无特征融合
+# Train without feature fusion
 python train_ablation.py --config_name no_fusion --gpu_id 0
 '''
 import datetime
@@ -42,16 +42,16 @@ import argparse
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="消融实验训练脚本")
+    parser = argparse.ArgumentParser(description="Training script for ablation study")
     parser.add_argument("--config_name", type=str, required=True,
                         choices=['full_model', 'no_attention', 'channel_only',
                                  'spatial_only', 'no_shortcut', 'no_fusion'],
-                        help="消融配置名称")
+                        help="Ablation configuration name")
     parser.add_argument("--gpu_id", type=int, default=0, help="GPU ID")
     return parser.parse_args()
 
 
-# 根据配置名称返回对应的模型参数和损失权重
+# Return model configuration based on the given config name
 def get_config_by_name(config_name):
     base_config = {
         "use_attention": True,
@@ -65,7 +65,8 @@ def get_config_by_name(config_name):
     }
 
     if config_name == "full_model":
-        pass  # 使用默认
+        pass
+
     elif config_name == "no_attention":
         base_config.update({
             "use_attention": False,
@@ -73,6 +74,7 @@ def get_config_by_name(config_name):
             "use_boundary_guidance": False,
             "loss_boundary_weight": 0.0,
         })
+
     elif config_name == "channel_only":
         base_config.update({
             "use_attention": True,
@@ -80,6 +82,7 @@ def get_config_by_name(config_name):
             "use_boundary_guidance": False,
             "loss_boundary_weight": 0.0,
         })
+
     elif config_name == "spatial_only":
         base_config.update({
             "use_attention": True,
@@ -87,14 +90,17 @@ def get_config_by_name(config_name):
             "use_boundary_guidance": False,
             "loss_boundary_weight": 0.0,
         })
+
     elif config_name == "no_shortcut":
         base_config.update({
             "use_shortcut_conv": False,
         })
+
     elif config_name == "no_fusion":
         base_config.update({
             "use_feature_fusion": False,
         })
+
     else:
         raise ValueError(f"Unknown config: {config_name}")
 
@@ -106,14 +112,14 @@ def main():
     config_name = args.config_name
     os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu_id)
 
-    # 获取模型配置
+    # Get model configuration
     model_config = get_config_by_name(config_name)
 
-    # ========== 基本训练参数（与原 Phase1TrainingConfig 保持一致） ==========
+    # ========== Basic training parameters ==========
     num_classes = 13
     backbone = "resnet50"
     pretrained = True
-    model_path = ''  # 如果要从某个预训练继续，可设置
+    model_path = ''
     downsample_factor = 16
     input_shape = [512, 512]
 
@@ -136,7 +142,7 @@ def main():
     eval_period = 5
 
     use_combined_loss = True
-    # 损失权重（根据配置动态调整 boundary 权重）
+
     loss_weights = {
         'ce': 0.5,
         'dice': 2.0,
@@ -158,11 +164,11 @@ def main():
     warmup_epochs = 5
     warmup_factor = 0.1
 
-    # 保存目录
+    # Save directory
     save_dir = f"logs_ablation/{config_name}"
     os.makedirs(save_dir, exist_ok=True)
 
-    # ========== 设置设备 ==========
+    # ========== Device setup ==========
     Cuda = True
     distributed = False
     sync_bn = False
@@ -174,7 +180,7 @@ def main():
     local_rank = 0
     rank = 0
 
-    # ========== 创建模型 ==========
+    # ========== Create model ==========
     model = DeepLab(
         num_classes=num_classes,
         backbone=backbone,
@@ -189,9 +195,9 @@ def main():
         use_boundary_guidance=model_config['use_boundary_guidance'],
     )
 
-    # 加载预训练权重（如果指定）
+    # Load pretrained weights
     if model_path != '':
-        print(f'加载权重: {model_path}')
+        print(f'Loading weights: {model_path}')
         state_dict = torch.load(model_path, map_location=device)
         if 'model_state_dict' in state_dict:
             state_dict = state_dict['model_state_dict']
@@ -199,25 +205,25 @@ def main():
             state_dict = state_dict['state_dict']
         model.load_state_dict(state_dict, strict=False)
 
-    # 记录 Loss
+    # Loss history
     time_str = datetime.datetime.strftime(datetime.datetime.now(), '%Y_%m_%d_%H_%M_%S')
     log_dir = os.path.join(save_dir, f"ablation_{config_name}_{time_str}")
     loss_history = LossHistory(log_dir, model, input_shape=input_shape)
 
-    # 混合精度
+    # Mixed precision
     scaler = None
     if fp16:
         from torch.cuda.amp import GradScaler
         scaler = GradScaler()
 
-    # 多GPU
+    # Multi-GPU
     model_train = model.train()
     if Cuda:
         model_train = torch.nn.DataParallel(model)
         cudnn.benchmark = True
         model_train = model_train.cuda()
 
-    # ========== 数据加载 ==========
+    # ========== Data loader ==========
     with open(os.path.join(VOCdevkit_path, "VOC2007/ImageSets/Segmentation/train.txt"), "r") as f:
         train_lines = f.readlines()
     with open(os.path.join(VOCdevkit_path, "VOC2007/ImageSets/Segmentation/val.txt"), "r") as f:
@@ -234,9 +240,9 @@ def main():
     Min_lr_fit = min(max(batch_size / nbs * Min_lr, lr_limit_min * 1e-2), lr_limit_max * 1e-2)
 
     if optimizer_type == 'adam':
-        optimizer = optim.Adam(model.parameters(), Init_lr_fit, betas=(momentum, 0.999), weight_decay=weight_decay)
+        optimizer = torch.optim.Adam(model.parameters(), Init_lr_fit, betas=(momentum, 0.999), weight_decay=weight_decay)
     else:
-        optimizer = optim.SGD(model.parameters(), Init_lr_fit, momentum=momentum, nesterov=True,
+        optimizer = torch.optim.SGD(model.parameters(), Init_lr_fit, momentum=momentum, nesterov=True,
                               weight_decay=weight_decay)
 
     if lr_decay_type == 'cos':
@@ -261,7 +267,7 @@ def main():
     eval_callback = ImprovedEvalCallback(model, input_shape, num_classes, val_lines, VOCdevkit_path,
                                          log_dir, Cuda, eval_flag=eval_flag, period=eval_period)
 
-    # ========== 训练循环 ==========
+    # ========== Training loop ==========
     best_avg_miou = 0.0
     early_stop_counter = 0
     EARLY_STOP_START = max(80, Freeze_Epoch + 10)
@@ -272,7 +278,8 @@ def main():
 
     UnFreeze_flag = False
     for epoch in range(Init_Epoch, UnFreeze_Epoch):
-        # 动态调整边界损失权重（可选，与原脚本一致）
+
+        # Dynamic boundary loss weight scheduling
         if epoch < 15:
             loss_weights['boundary'] = 0.0
         elif epoch < 40:
@@ -280,9 +287,8 @@ def main():
         else:
             loss_weights['boundary'] = model_config['loss_boundary_weight']
 
-        # 解冻逻辑
+        # Unfreeze backbone
         if epoch >= Freeze_Epoch and not UnFreeze_flag and Freeze_Train:
-            # ... (与原脚本相同，此处省略，可参考原脚本)
             pass
 
         train_results = fit_one_epoch(
@@ -295,14 +301,14 @@ def main():
             loss_weights=loss_weights
         )
 
-        # 学习率调度
+        # Learning rate scheduler
         if lr_scheduler is not None:
             if lr_decay_type == 'plateau':
                 lr_scheduler.step(train_results.get('val_loss', 0))
             else:
                 lr_scheduler.step()
 
-        # 早停逻辑
+        # Early stopping logic
         current_miou = train_results.get('miou', None)
         if current_miou is not None:
             miou_queue.append(current_miou)
@@ -311,18 +317,18 @@ def main():
                 if avg_miou - best_avg_miou > EARLY_STOP_MIN_DELTA:
                     best_avg_miou = avg_miou
                     early_stop_counter = 0
-                    print(f"[EarlyStop] Avg mIoU 提升至 {best_avg_miou:.4f}")
+                    print(f"[EarlyStop] Avg mIoU improved to {best_avg_miou:.4f}")
                 else:
                     early_stop_counter += 1
-                    print(f"[EarlyStop] 无显著提升 ({early_stop_counter}/{EARLY_STOP_PATIENCE}), Avg mIoU={avg_miou:.4f}")
+                    print(f"[EarlyStop] No improvement ({early_stop_counter}/{EARLY_STOP_PATIENCE}), Avg mIoU={avg_miou:.4f}")
                 if early_stop_counter >= EARLY_STOP_PATIENCE:
                     print(f"\n[EarlyStop Triggered] Epoch {epoch}, Best Avg mIoU: {best_avg_miou:.4f}")
                     break
 
-    # 保存最佳模型
+    # Save best model
     best_model_path = os.path.join(log_dir, "best_model.pth")
     torch.save(model.state_dict(), best_model_path)
-    print(f"训练完成，最佳模型保存至 {best_model_path}")
+    print(f"Training finished, best model saved to {best_model_path}")
     loss_history.writer.close()
 
 
