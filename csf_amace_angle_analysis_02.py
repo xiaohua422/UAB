@@ -1809,8 +1809,8 @@ class CSFCobbAnalyzer:
 
 def main():
     # File path configuration (modify according to actual situation)
-    csf_path = r"D:\unet_test\Deeplabv3+\Deeplabv3_plus_ours\deeplabv3-plus-pytorch-main-ours\CSF\output_CSF_analysis\csf_analysis\CSF_statistics_detailed.csv"
-    cobb_path = r"D:\unet_test\Deeplabv3+\cobb对比图像\L1-L5\csf_amace.csv"
+    csf_path = "CSF\output_CSF_analysis\csf_analysis\CSF_statistics_detailed.csv"
+    cobb_path = "csf_amace.csv"
 
     # Create analyzer instance
     analyzer = CSFCobbAnalyzer(csf_path, cobb_path)
