@@ -86,3 +86,8 @@ python csf_highlight.py
 python csf_signal_visualizer.py
 python three_method_analysis_tardition_amace_hough_contour.py
 ```
+
+## License
+This project is open-source under the [MIT License](./LICENSE).
+The codes are only available for academic research purposes. Commercial use of any form requires prior written authorization from the corresponding author.
+
