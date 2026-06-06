@@ -10,7 +10,6 @@ from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error, m
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 import shap
-import warnings
 import os
 import itertools
 from scipy.stats import f_oneway, kruskal, ttest_ind, mannwhitneyu
@@ -22,9 +21,9 @@ warnings.filterwarnings('ignore')
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# 设置全局字体为 Times New Roman
+# Set global font to Times New Roman
 plt.rcParams['font.family'] = 'Times New Roman'
-plt.rcParams['font.size'] = 10   # 可选，根据需要设置字号
+plt.rcParams['font.size'] = 10   # Optional: adjust font size as needed
 plt.rcParams['axes.unicode_minus'] = False
 
 # Set plot style
@@ -754,29 +753,29 @@ class CSFCobbAnalyzer:
 
         print(f"\n   Training set size: {len(X_train)}, Test set size: {len(X_test)}")
 
-        # 5. 5-fold cross-validation设置
+        # 5. 5-fold cross-validation configuration
         cv_folds = 5
         cv_strategy = KFold(n_splits=cv_folds, shuffle=True, random_state=42)
         print(f"\n   Using {cv_folds}-fold cross-validation for model evaluation")
 
         # 6. Cross-validation evaluation function for all metrics
         def cross_val_evaluate_metrics(name, model, X, y, cv_strategy):
-            """使用交叉验证评估模型的多个指标"""
+            """Evaluate multiple metrics using cross-validation"""
             try:
-                # 评估R²
+                # Evaluate R²
                 r2_scores = cross_val_score(model, X, y, cv=cv_strategy, scoring='r2')
                 r2_mean = r2_scores.mean()
                 r2_std = r2_scores.std()
 
-                # 评估MAE
+                # Evaluate MAE
                 mae_scores = cross_val_score(model, X, y, cv=cv_strategy, scoring='neg_mean_absolute_error')
-                mae_scores = -mae_scores  # 转换为正数
+                mae_scores = -mae_scores  # Convert to positive values
                 mae_mean = mae_scores.mean()
                 mae_std = mae_scores.std()
 
-                # 评估RMSE
+                # Evaluate RMSE
                 rmse_scores = cross_val_score(model, X, y, cv=cv_strategy, scoring='neg_root_mean_squared_error')
-                rmse_scores = -rmse_scores  # 转换为正数
+                rmse_scores = -rmse_scores  # Convert to positive values
                 rmse_mean = rmse_scores.mean()
                 rmse_std = rmse_scores.std()
 
@@ -844,15 +843,15 @@ class CSFCobbAnalyzer:
         try:
             lr_model = LinearRegression()
 
-            # 5-fold交叉验证评估
+            # 5-fold cross-validation evaluation
             lr_cv_results = cross_val_evaluate_metrics("Linear Regression", lr_model, X_train, y_train, cv_strategy)
 
-            # 训练最终模型
+            # Train the final model
             lr_model.fit(X_train, y_train)
             lr_pred = lr_model.predict(X_test)
             lr_eval = evaluate_model("Linear Regression", y_test, lr_pred)
 
-            # 保存交叉验证结果
+            # Save cross-validation results
             if lr_cv_results is not None:
                 lr_eval['cv_r2_mean'] = lr_cv_results['r2_mean']
                 lr_eval['cv_r2_std'] = lr_cv_results['r2_std']
@@ -876,11 +875,11 @@ class CSFCobbAnalyzer:
                 'min_samples_split': [2, 5]
             }
 
-            # 使用5折交叉验证进行参数调优
+            # Perform hyperparameter tuning using 5-fold cross-validation
             grid_search = GridSearchCV(
                 RandomForestRegressor(random_state=42, n_jobs=-1),
                 param_grid,
-                cv=cv_strategy,  # 使用5折交叉验证
+                cv=cv_strategy,  # Use 5-fold cross-validation
                 scoring='r2',
                 n_jobs=-1,
                 verbose=0,
@@ -891,7 +890,7 @@ class CSFCobbAnalyzer:
             print(f"\n   Best Random Forest parameters: {grid_search.best_params_}")
             print(f"   Best CV R² score: {grid_search.best_score_:.4f}")
 
-            # 展示所有参数组合的交叉验证结果
+            # Display cross-validation results for all parameter combinations
             cv_results_df = pd.DataFrame(grid_search.cv_results_)
             cv_results_df = cv_results_df.sort_values(by='mean_test_score', ascending=False)
             print(f"   Top 5 parameter combinations by CV score:")
@@ -905,7 +904,7 @@ class CSFCobbAnalyzer:
             rf_pred = rf_model.predict(X_test)
             rf_eval = evaluate_model("Random Forest", y_test, rf_pred)
 
-            # 保存交叉验证结果
+            # Save cross-validation results
             rf_eval['best_cv_score'] = grid_search.best_score_
             rf_eval['best_params'] = grid_search.best_params_
             rf_eval['cv_results'] = cv_results_df
@@ -921,14 +920,14 @@ class CSFCobbAnalyzer:
         try:
             gb_model = GradientBoostingRegressor(random_state=42, n_estimators=100, learning_rate=0.1)
 
-            # 5-fold交叉验证评估
+            # 5-fold cross-validation evaluation
             gb_cv_results = cross_val_evaluate_metrics("Gradient Boosting", gb_model, X_train, y_train, cv_strategy)
 
             gb_model.fit(X_train, y_train)
             gb_pred = gb_model.predict(X_test)
             gb_eval = evaluate_model("Gradient Boosting", y_test, gb_pred)
 
-            # 保存交叉验证结果
+            # Save cross-validation results
             if gb_cv_results is not None:
                 gb_eval['cv_r2_mean'] = gb_cv_results['r2_mean']
                 gb_eval['cv_r2_std'] = gb_cv_results['r2_std']
@@ -1340,7 +1339,7 @@ class CSFCobbAnalyzer:
             self.shap_explainer = shap.TreeExplainer(model)
             self.shap_values = self.shap_explainer.shap_values(X_test)
 
-            # 调试信息
+            # Debug information
             print(f"   SHAP values shape: {self.shap_values.shape}")
             print(f"   Expected value: {self.shap_explainer.expected_value}")
             print(f"   Expected value type: {type(self.shap_explainer.expected_value)}")
@@ -1365,7 +1364,7 @@ class CSFCobbAnalyzer:
             # 3. Save SHAP values for further analysis
             shap_df = pd.DataFrame(self.shap_values, columns=X_test.columns)
 
-            # 修复base_value的处理
+            # Fix base_value handling
             expected_value = self.shap_explainer.expected_value
             if isinstance(expected_value, (int, float, np.number)):
                 base_value_array = np.full(len(shap_df), expected_value)
@@ -1375,19 +1374,19 @@ class CSFCobbAnalyzer:
                 base_value_array = expected_value
 
             if len(base_value_array) != len(shap_df):
-                raise ValueError(f"base_value维度({len(base_value_array)})与SHAP数据({len(shap_df)})不匹配")
+                raise ValueError(f"base_value dimension({len(base_value_array)})does not match SHAP data({len(shap_df)})不匹配")
 
             shap_df['base_value'] = base_value_array
 
-            # 实际Cobb角：直接从y_test获取（无需通过索引匹配）
-            shap_df['actual_cobb_angle'] = y_test.values  # y_test是测试集的实际值，索引已对齐
-            # 预测值：直接用模型预测X_test
+            # Actual Cobb angle: obtained directly from y_test (no index matching required)
+            shap_df['actual_cobb_angle'] = y_test.values  # y_test contains the ground-truth values of the test set, with aligned indices
+            # Predicted values: generated directly by the model using X_test
             shap_df['predicted_cobb_angle'] = model.predict(X_test)
 
             shap_df.to_csv(f'{save_dir}/shap_analysis/shap_values.csv', index=False, encoding='utf-8')
             print(f"   ✓ SHAP values saved: {save_dir}/shap_analysis/shap_values.csv")
 
-            # 4. 创建SHAP依赖图（针对最重要的特征）
+            # 4. Create SHAP dependence plots for the most important features
             if hasattr(self, 'feature_importance') and self.feature_importance is not None:
                 try:
                     top_features = self.feature_importance['Feature'].head(3).tolist()
