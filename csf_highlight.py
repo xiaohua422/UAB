@@ -5,22 +5,22 @@ import pandas as pd
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
-# 路径设置
+# Path Configuration
 img_dir = "img"
 mask_dir = "mask"
 save_dir = "output4_CSF"
 
 os.makedirs(save_dir, exist_ok=True)
 
-# CSF标签值 - 根据您的数据集调整
+# CSF Label Value - Adjust according to your dataset
 CSF_LABEL = 12
 
-# 支持的原图格式
+# Supported original image formats
 SUPPORTED_IMAGE_EXTS = ['.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif']
 
 
 def find_image_file(base_name, img_dir):
-    """查找对应base_name的各种格式的原图文件"""
+    """Find image file with various formats for the given base name"""
     for ext in SUPPORTED_IMAGE_EXTS:
         img_path = os.path.join(img_dir, base_name + ext)
         if os.path.exists(img_path):
@@ -28,10 +28,10 @@ def find_image_file(base_name, img_dir):
     return None
 
 
-# 创建数据列表来存储结果
+# Create list to store results
 results = []
 
-# 处理所有文件
+# Process all files
 for file in tqdm(os.listdir(mask_dir)):
     if not file.endswith('.png'):
         continue
@@ -39,38 +39,38 @@ for file in tqdm(os.listdir(mask_dir)):
     mask_path = os.path.join(mask_dir, file)
     base = os.path.splitext(file)[0]
 
-    # 使用新的查找函数
+    # Use the new find function
     img_path = find_image_file(base, img_dir)
 
     if not img_path:
-        print(f"[警告] 原图不存在，跳过：{file} (在 {img_dir} 中找不到 {base}.*)")
+        print(f"[Warning] Original image not found, skipping: {file} (could not find {base}.* in {img_dir})")
         continue
 
-    print(f"[信息] 处理文件：{file} -> 原图：{os.path.basename(img_path)}")
+    print(f"[Info] Processing: {file} -> Original image: {os.path.basename(img_path)}")
 
-    # 读取图像
+    # Read images
     img = cv2.imread(img_path)
     mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
 
     if img is None:
-        print(f"[错误] 无法读取原图：{img_path}")
+        print(f"[Error] Failed to read original image: {img_path}")
         continue
 
     if mask is None:
-        print(f"[错误] 无法读取mask：{mask_path}")
+        print(f"[Error] Failed to read mask: {mask_path}")
         continue
 
-    # 获取图像尺寸
+    # Get image dimensions
     height, width = mask.shape[:2]
     total_pixels = height * width
 
-    # 生成 CSF 区域
+    # Generate CSF region
     csf_region = np.where(mask == CSF_LABEL, 255, 0).astype(np.uint8)
     csf_area = np.sum(csf_region == 255)
 
-    # 收集结果
+    # Collect results
     if csf_area == 0:
-        print(f"[信息] {file} 中没有检测到CSF区域")
+        print(f"[Info] No CSF region detected in {file}")
         results.append({
             'Filename': file,
             'CSF_Pixel_Count': 0,
@@ -89,37 +89,36 @@ for file in tqdm(os.listdir(mask_dir)):
             'Centroid_Y': 0.0
         })
     else:
-        # 计算CSF区域在灰度图像上的强度统计
+        # Calculate intensity statistics on grayscale image
         gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         csf_intensities = gray_img[csf_region == 255]
 
-        # 强度统计
+        # Intensity statistics
         csf_min_intensity = np.min(csf_intensities) if len(csf_intensities) > 0 else 0
         csf_max_intensity = np.max(csf_intensities) if len(csf_intensities) > 0 else 0
         csf_mean_intensity = np.mean(csf_intensities) if len(csf_intensities) > 0 else 0.0
         csf_std_intensity = np.std(csf_intensities) if len(csf_intensities) > 0 else 0.0
 
-        # CSF区域占比
+        # CSF area percentage
         csf_percentage = (csf_area / total_pixels) * 100
 
-        # 查找轮廓
+        # Find contours
         contours, _ = cv2.findContours(csf_region, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         contour_count = len(contours)
 
-        # 计算最大轮廓面积
+        # Calculate largest contour area
         if contours:
             largest_contour = max(contours, key=cv2.contourArea)
             largest_contour_area = cv2.contourArea(largest_contour)
 
-            # 获取边界框
+            # Get bounding box
             x, y, w, h = cv2.boundingRect(largest_contour)
             bounding_box_str = f'{x},{y},{w},{h}'
 
-            # 计算宽高比（防止除零）
+            # Calculate aspect ratio (prevent division by zero)
             aspect_ratio = w / h if h > 0 else 0.0
 
-            # 计算CSF区域的质心（整个CSF区域，不只是最大轮廓）
-            # 使用图像矩计算质心
+            # Calculate centroid of CSF region using image moments
             M = cv2.moments(csf_region)
             if M["m00"] != 0:
                 centroid_x = M["m10"] / M["m00"]
@@ -127,11 +126,11 @@ for file in tqdm(os.listdir(mask_dir)):
             else:
                 centroid_x, centroid_y = 0.0, 0.0
 
-            # 在原图上绘制矩形框
+            # Draw rectangle on original image
             result_img = img.copy()
             cv2.rectangle(result_img, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
-            # ============ 计算 CSF 区域信号值分布 ============
+            # ============ Calculate CSF signal distribution ============
             csf_crop_mask = csf_region[y:y + h, x:x + w]
             gray_crop = gray_img[y:y + h, x:x + w]
 
@@ -145,15 +144,15 @@ for file in tqdm(os.listdir(mask_dir)):
 
             signal_distribution = np.array(signal_distribution)
 
-            # ========== 平滑方式一：高斯平滑 ==========
+            # ========== Smoothing Method 1: Gaussian Smoothing ==========
             if len(signal_distribution) > 0:
-                # 确保信号分布长度足够进行平滑
+                # Ensure signal length is sufficient for smoothing
                 if len(signal_distribution) > 9:
                     gaussian_smoothed = cv2.GaussianBlur(signal_distribution.reshape(-1, 1), (9, 9), sigmaX=3).flatten()
                 else:
-                    # 如果信号太短，使用较小的核
+                    # Use smaller kernel if signal is too short
                     kernel_size = min(len(signal_distribution), 5)
-                    if kernel_size % 2 == 0:  # 确保核大小为奇数
+                    if kernel_size % 2 == 0:
                         kernel_size -= 1
                     if kernel_size >= 3:
                         gaussian_smoothed = cv2.GaussianBlur(signal_distribution.reshape(-1, 1),
@@ -161,10 +160,10 @@ for file in tqdm(os.listdir(mask_dir)):
                     else:
                         gaussian_smoothed = signal_distribution
 
-                # ========== 平滑方式二：Savitzky-Golay 滤波 ==========
+                # ========== Smoothing Method 2: Savitzky-Golay Filter ==========
                 from scipy.signal import savgol_filter
 
-                # window_length 必须为奇数且小于等于信号长度
+                # window_length must be odd and <= signal length
                 if len(signal_distribution) >= 5:
                     window_length = min(len(signal_distribution) // 5 * 2 + 1, len(signal_distribution))
                     if window_length < 5:
@@ -184,7 +183,7 @@ for file in tqdm(os.listdir(mask_dir)):
                 else:
                     sg_smoothed = signal_distribution
 
-                # ========== 绘制三条曲线对比 ==========
+                # ========== Plot three curves for comparison ==========
                 plt.figure(figsize=(7, 5))
                 plt.plot(signal_distribution, label="Raw Signal", linewidth=1)
                 plt.plot(gaussian_smoothed, label="Gaussian Smoothed", linewidth=2)
@@ -198,7 +197,7 @@ for file in tqdm(os.listdir(mask_dir)):
                 plt.savefig(curve_path, dpi=300)
                 plt.close()
 
-            # 保存结果图像
+            # Save result image
             save_path = os.path.join(save_dir, file)
             cv2.imwrite(save_path, result_img)
 
@@ -219,9 +218,9 @@ for file in tqdm(os.listdir(mask_dir)):
                 'Centroid_X': round(centroid_x, 2),
                 'Centroid_Y': round(centroid_y, 2)
             })
-            print(f"[信息] {file} 处理完成，CSF像素数：{csf_area}")
+            print(f"[Info] Completed processing {file}, CSF pixels: {csf_area}")
         else:
-            # 有CSF像素但没有检测到轮廓的情况
+            # Case with CSF pixels but no contours detected
             results.append({
                 'Filename': file,
                 'CSF_Pixel_Count': csf_area,
@@ -240,15 +239,15 @@ for file in tqdm(os.listdir(mask_dir)):
                 'Centroid_Y': 0.0
             })
 
-# 将结果保存为CSV文件
+# Save results to CSV file
 csv_file = os.path.join(save_dir, "CSF_highlight_statistics.csv")
 df = pd.DataFrame(results)
 df.to_csv(csv_file, index=False)
 
-# 同时保存为TXT文件（可选）
+# Save as TXT file (optional)
 txt_file = os.path.join(save_dir, "CSF_Area_Statistics.txt")
 with open(txt_file, "w", encoding="utf-8") as f:
-    # 写入标题行
+    # Write header line
     headers = ['Filename', 'CSF_Pixel_Count', 'CSF_Percentage', 'CSF_Min_Intensity',
                'CSF_Max_Intensity', 'CSF_Mean_Intensity', 'CSF_Std_Intensity',
                'Contour_Count', 'Largest_Contour_Area', 'Bounding_Box',
@@ -256,7 +255,7 @@ with open(txt_file, "w", encoding="utf-8") as f:
                'Centroid_X', 'Centroid_Y']
     f.write("\t".join(headers) + "\n")
 
-    # 写入数据行
+    # Write data rows
     for result in results:
         row = [
             result['Filename'],
@@ -277,8 +276,8 @@ with open(txt_file, "w", encoding="utf-8") as f:
         ]
         f.write("\t".join(row) + "\n")
 
-print("✅ CSF 区域高亮与面积统计完成！")
-print("✅ CSF 信号分布曲线绘制完成！")
-print(f"📄 CSV统计文件：{csv_file}")
-print(f"📄 TXT统计文件：{txt_file}")
-print(f"🖼️ 输出图保存目录：{save_dir}")
+print("✅ CSF region highlighting and area statistics completed!")
+print("✅ CSF signal distribution curves generated successfully!")
+print(f"📄 CSV statistics file: {csv_file}")
+print(f"📄 TXT statistics file: {txt_file}")
+print(f"🖼️  Output directory: {save_dir}")
