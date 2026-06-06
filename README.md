@@ -38,7 +38,7 @@ pip install -r requirements.txt
 ├── csf_analyzer_svg.py        # CSF analyzer with SVG export
 ├── csf_highlight.py           # Highlight CSF regions in images
 ├── csf_signal_visualizer.py   # Visualize CSF signal along spine
-├── three_method_analysis_tardition_amace_hough_contour.py       # Result error & comparison analysis
+├── method_analysis_tardition_amace_hough_contour.py       # Result error & comparison analysis
 ├── json_to_dataset.py         # JSON annotation to dataset
 ├── voc_annotation.py          # VOC format annotation
 ├── requirements.txt            # Dependencies
@@ -72,13 +72,17 @@ python single_mIou.py
 
 ### Angle Calculation
 ```
-python cobb8.py
+python cobb8/10/12/13.py
 python every_amace_angle.py
 python every_amace_cobb_analysis.py
 ```
-
-### Visualization & Analysis
+### CSF Calculation
 ```
 python CSF_plot.py
+python csf_highlight.py
+```
+### Visualization & Analysis
+```
+python csf_signal_visualizer.py
 python three_method_analysis_tardition_amace_hough_contour.py
 ```
