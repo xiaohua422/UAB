@@ -32,8 +32,12 @@ pip install -r requirements.txt
 ├── every_amace_cobb_analysis.py
 ├── get_mDice.py               # Dice coefficient
 ├── get_miou.py                # IoU metric
+├── single_mDice.py             # Dice for a single vertebra
+├── single_miou.py              # IoU for a single vertebra
 ├── CSF_plot.py                # CSF feature visualization
-├── csf_signal_visualizer.py
+├── csf_analyzer_svg.py        # CSF analyzer with SVG export
+├── csf_highlight.py           # Highlight CSF regions in images
+├── csf_signal_visualizer.py   # Visualize CSF signal along spine
 ├── three_method_analysis_tardition_amace_hough_contour.py       # Result error & comparison analysis
 ├── json_to_dataset.py         # JSON annotation to dataset
 ├── voc_annotation.py          # VOC format annotation
